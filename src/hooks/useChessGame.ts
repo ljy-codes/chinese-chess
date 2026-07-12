@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { getGameStatus, getLegalMoves } from '../game/chess';
 import { AI_DIFFICULTY_CONFIG } from '../game/ai/config';
 import type { AiSearchRequest, AiSearchResult } from '../game/ai/types';
+import { getRecentMoves } from '../game/board-markers';
 import { applyAiSearchResult, canUndoHumanTurn, movePiece, undoHumanTurn } from '../game/game-engine';
 import { canHumanMove, createGameState, createId } from '../game/game-state';
 import type { GameSettings, Piece, Position } from '../game/types';
@@ -31,6 +32,7 @@ export function useChessGame() {
     [pieces],
   );
   const lastMove = history.at(-1)?.move;
+  const recentMoves = useMemo(() => getRecentMoves(history), [history]);
   const isAiTurn = !canHumanMove(game);
   const aiConfig = AI_DIFFICULTY_CONFIG[game.settings.aiDifficulty];
   const aiRequest = useMemo<AiSearchRequest | null>(() => {
@@ -102,6 +104,7 @@ export function useChessGame() {
     pieces,
     positionVersion: game.positionVersion,
     requestId: game.requestId,
+    recentMoves,
     restart,
     retryAi,
     selectedId,

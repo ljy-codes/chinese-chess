@@ -209,6 +209,13 @@ npm run lint    成功
 npm run build   成功，生成独立 chess-ai.worker-*.js
 ```
 
+## 棋盘落点可视化记录
+
+- 红黑双方分别保留各自最近一步，起点使用虚线圈和“起”标记，落点使用实线圈和“落”标记。
+- 选中棋子后，合法空位显示绿色呼吸点，存在对方棋子的可吃位置显示红色外圈。
+- 标记派生逻辑位于 `src/game/board-markers.ts`，不在 React 渲染中混入棋局规则。
+- 动画遵循 `prefers-reduced-motion`，关闭系统动态效果时保留静态颜色提示。
+
 阶段四仍需完善置换表、Zobrist Hash、Killer Move、History Heuristic 和更完整的 Principal Variation 排序；这些不影响本次“机器必须快速合法落子”的修复。
 
 ## 游戏技能重构记录

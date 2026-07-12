@@ -30,6 +30,7 @@ function App() {
             disabled={game.isAiTurn}
             lastMove={game.lastMove}
             legalMoveKeys={game.legalMoveKeys}
+            recentMoves={game.recentMoves}
             selectedId={game.selectedId}
             onSelect={game.selectPosition}
           />

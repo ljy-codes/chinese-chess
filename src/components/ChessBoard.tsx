@@ -1,4 +1,5 @@
 import { PIECE_LABELS } from '../game/chess';
+import { getMoveMarkers, type RecentMoves } from '../game/board-markers';
 import type { Move, Position, Side } from '../game/types';
 import { positionKey, type BoardIndex } from '../hooks/useChessGame';
 import { ChessPiece } from './ChessPiece';
@@ -18,11 +19,12 @@ interface ChessBoardProps {
   disabled?: boolean;
   lastMove?: Move;
   legalMoveKeys: Set<string>;
+  recentMoves: RecentMoves;
   selectedId?: string;
   onSelect: (position: Position) => void;
 }
 
-export function ChessBoard({ boardIndex, disabled, lastMove, legalMoveKeys, selectedId, onSelect }: ChessBoardProps) {
+export function ChessBoard({ boardIndex, disabled, lastMove, legalMoveKeys, recentMoves, selectedId, onSelect }: ChessBoardProps) {
   return (
     <div className="board-wrap">
       <div className={`board${disabled ? ' board-disabled' : ''}`} role="grid" aria-label="中国象棋棋盘" aria-disabled={disabled}>
@@ -38,9 +40,11 @@ export function ChessBoard({ boardIndex, disabled, lastMove, legalMoveKeys, sele
           const piece = boardIndex.get(key);
           const legal = legalMoveKeys.has(key);
           const isLast = lastMove && (samePosition(lastMove.from, position) || samePosition(lastMove.to, position));
+          const moveMarkers = getMoveMarkers(position, recentMoves);
+          const legalClass = legal ? piece ? ' legal legal-capture' : ' legal legal-empty' : '';
           return (
             <button
-              className={`point${legal ? ' legal' : ''}${piece && selectedId === piece.id ? ' selected' : ''}${isLast ? ' last' : ''}`}
+              className={`point${legalClass}${piece && selectedId === piece.id ? ' selected' : ''}${isLast ? ' last' : ''}`}
               style={{ left: `${5.4 + position.col * 11.15}%`, top: `${5.4 + position.row * 9.91}%` }}
               onClick={() => onSelect(position)}
               disabled={disabled}
@@ -48,6 +52,15 @@ export function ChessBoard({ boardIndex, disabled, lastMove, legalMoveKeys, sele
               key={key}
             >
               {piece && <ChessPiece piece={piece} />}
+              {moveMarkers.map((marker) => (
+                <span
+                  className={`move-trace ${marker.side} ${marker.endpoint}`}
+                  aria-hidden="true"
+                  key={`${marker.side}-${marker.endpoint}`}
+                >
+                  {marker.endpoint === 'from' ? '起' : '落'}
+                </span>
+              ))}
             </button>
           );
         })}
