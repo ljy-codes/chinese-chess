@@ -1,5 +1,6 @@
 import { AI_DIFFICULTY_CONFIG } from '../game/ai/config';
 import type { AiSearchResult } from '../game/ai/types';
+import type { GameResultView } from '../game/game-result';
 import type { AiDifficulty, GameSettings, PlayerSidePreference } from '../game/types';
 
 interface SettingsPanelProps {
@@ -8,12 +9,13 @@ interface SettingsPanelProps {
   humanSide: 'red' | 'black';
   isAiTurn: boolean;
   isAiThinking: boolean;
+  result?: GameResultView | null;
   settings: GameSettings;
   onChange: (settings: GameSettings) => void;
   onRetryAi: () => void;
 }
 
-export function SettingsPanel({ aiError, aiStats, humanSide, isAiTurn, isAiThinking, settings, onChange, onRetryAi }: SettingsPanelProps) {
+export function SettingsPanel({ aiError, aiStats, humanSide, isAiTurn, isAiThinking, result, settings, onChange, onRetryAi }: SettingsPanelProps) {
   const update = <Key extends keyof GameSettings>(key: Key, value: GameSettings[Key]) => {
     onChange({ ...settings, [key]: value });
   };
@@ -41,11 +43,13 @@ export function SettingsPanel({ aiError, aiStats, humanSide, isAiTurn, isAiThink
           ))}
         </select>
       </label>
-      <div className={`ai-stage-note${isAiThinking ? ' waiting' : ''}${aiError ? ' failed' : ''}`}>
+      <div className={`ai-stage-note${isAiThinking ? ' waiting' : ''}${aiError ? ' failed' : ''}${result ? ` result ${result.outcome}` : ''}`}>
         <span className="ai-dot" aria-hidden="true" />
         <p>
-          <strong>你执{humanSide === 'red' ? '红' : '黑'}</strong>
-          {aiError
+          <strong>{result ? result.title : `你执${humanSide === 'red' ? '红' : '黑'}`}</strong>
+          {result
+            ? result.detail
+            : aiError
             ? aiError
             : isAiThinking
               ? `AI 思考中 · 最长 ${AI_DIFFICULTY_CONFIG[settings.aiDifficulty].timeLimitMs}ms`

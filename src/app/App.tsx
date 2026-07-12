@@ -1,6 +1,7 @@
 import { ChessBoard } from '../components/ChessBoard';
 import { GameControls } from '../components/GameControls';
 import { GameStatusPanel } from '../components/GameStatusPanel';
+import { GameResultDialog } from '../components/GameResultDialog';
 import { MoveHistory } from '../components/MoveHistory';
 import { PlayerStatus } from '../components/PlayerStatus';
 import { SettingsPanel } from '../components/SettingsPanel';
@@ -27,7 +28,9 @@ function App() {
           <PlayerStatus controller={blackController} side="black" turn={game.turn} />
           <ChessBoard
             boardIndex={game.boardIndex}
-            disabled={game.isAiTurn}
+            checkedKingId={game.checkedKingId}
+            disabled={game.isAiTurn || game.gameOver}
+            isAiTurn={game.isAiTurn}
             lastMove={game.lastMove}
             legalMoveKeys={game.legalMoveKeys}
             recentMoves={game.recentMoves}
@@ -42,6 +45,7 @@ function App() {
           humanSide={game.humanSide}
           isAiTurn={game.isAiTurn}
           isAiThinking={game.isAiThinking}
+          result={game.resultView}
           settings={game.settings}
           onChange={game.updateSettings}
           onRetryAi={game.retryAi}
@@ -55,6 +59,7 @@ function App() {
       </section>
 
       <footer>观棋不语真君子 · 举手无悔大丈夫</footer>
+      {game.resultView && <GameResultDialog result={game.resultView} onRestart={game.restart} />}
     </main>
   );
 }

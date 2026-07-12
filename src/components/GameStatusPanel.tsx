@@ -10,12 +10,12 @@ interface GameStatusPanelProps {
 }
 
 export function GameStatusPanel({ isAiTurn, moveCount, status, turn }: GameStatusPanelProps) {
-  const statusText = isAiTurn
-    ? '等待 AI 行棋'
-    : status.kind === 'checkmate'
+  const statusText = status.kind === 'checkmate'
     ? `${sideName(status.winner!)}胜`
     : status.kind === 'stalemate'
       ? `${sideName(status.winner!)}困毙获胜`
+      : isAiTurn
+        ? '等待 AI 行棋'
       : status.kind === 'check'
         ? `${sideName(turn)}被将军`
         : `${sideName(turn)}行棋`;

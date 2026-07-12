@@ -185,9 +185,10 @@ h1 span { color: #b74032; }
   cursor: pointer;
 }
 
-.point:disabled { cursor: wait; }
+.point:disabled { cursor: default; }
+.board-ai-turn .point:disabled { cursor: wait; }
 .board-disabled .piece { filter: saturate(.74) brightness(.92); }
-.board-disabled::after {
+.board-ai-turn::after {
   content: 'AI 回合';
   position: absolute;
   z-index: 5;
@@ -202,6 +203,48 @@ h1 span { color: #b74032; }
   font-size: 12px;
   letter-spacing: .2em;
 }
+
+.result-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(8, 6, 4, .68);
+  backdrop-filter: blur(3px);
+}
+
+.result-dialog {
+  position: relative;
+  width: min(360px, 92vw);
+  padding: 34px 30px 30px;
+  border: 1px solid #8b6837;
+  color: #ddc79d;
+  background:
+    radial-gradient(circle at 50% 0, rgba(166, 125, 62, .2), transparent 55%),
+    #18110c;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .7), inset 0 0 30px rgba(133, 94, 43, .12);
+  text-align: center;
+}
+
+.result-dialog::before, .result-dialog::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  width: 46px;
+  height: 1px;
+  background: #8b6837;
+}
+
+.result-dialog::before { left: 12px; }
+.result-dialog::after { right: 12px; }
+.result-kicker { color: #8e7657; font-size: 10px; letter-spacing: .35em; }
+.result-dialog h2 { margin: 12px 0 8px; color: #e4c57d; font: 48px/1 'Ma Shan Zheng', cursive; letter-spacing: .12em; }
+.result-dialog.lose h2 { color: #c89978; }
+.result-dialog p { margin: 0 0 24px; color: #a99474; font-size: 13px; letter-spacing: .12em; }
+.result-dialog button { padding: 9px 24px; border: 1px solid #a07a40; color: #e2c890; background: rgba(122, 86, 39, .16); cursor: pointer; }
+.result-dialog button:hover { border-color: #d1ad68; background: rgba(150, 106, 48, .25); }
 
 .piece {
   position: absolute;
@@ -238,6 +281,21 @@ h1 span { color: #b74032; }
 .point:hover .piece, .point.selected .piece { transform: translateY(-2px); filter: brightness(1.12); }
 .point.selected .piece { box-shadow: inset 0 0 0 2px #f1d890, inset 0 0 0 5px #9c7432, 0 0 16px rgba(236, 199, 112, .9); }
 .point.last:not(.selected) .piece { filter: brightness(1.08); }
+
+.point.in-check .piece {
+  animation: king-in-check .55s ease-in-out infinite alternate;
+}
+
+.point.in-check::before {
+  content: '';
+  position: absolute;
+  z-index: 7;
+  inset: -8%;
+  border: 4px solid #e43f30;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: check-ring .55s ease-in-out infinite alternate;
+}
 
 .point.legal::after {
   content: '';
@@ -282,6 +340,14 @@ h1 span { color: #b74032; }
 
 @keyframes capture-breathe {
   to { transform: scale(1.06); opacity: .72; }
+}
+
+@keyframes king-in-check {
+  to { filter: brightness(1.45) saturate(1.25); box-shadow: inset 0 0 0 2px #f2d18b, inset 0 0 0 5px #9b3b26, 0 0 24px rgba(226, 48, 38, .95); }
+}
+
+@keyframes check-ring {
+  to { transform: scale(1.12); opacity: .35; }
 }
 
 .control-bar {
@@ -380,6 +446,10 @@ h1 span { color: #b74032; }
 .ai-stage-note.waiting .ai-dot { background: #c84838; box-shadow: 0 0 9px rgba(200, 72, 56, .75); }
 .ai-stage-note.waiting .ai-dot { animation: ai-pulse .8s ease-in-out infinite alternate; }
 .ai-stage-note.failed { border-left-color: #9f3f34; }
+.ai-stage-note.result { border-left-color: #af8644; background: rgba(133, 91, 37, .18); }
+.ai-stage-note.result .ai-dot { background: #d5ad62; box-shadow: 0 0 10px rgba(213, 173, 98, .72); }
+.ai-stage-note.result.lose { border-left-color: #865047; }
+.ai-stage-note.result.lose .ai-dot { background: #aa695d; box-shadow: 0 0 9px rgba(170, 105, 93, .65); }
 .ai-stage-note p { display: flex; flex-direction: column; gap: 3px; margin: 0; color: #7e6b52; font-size: 10px; line-height: 1.55; }
 .ai-stage-note strong { color: #cdb28a; font-size: 12px; }
 .ai-stage-note button { margin-left: auto; border: 1px solid #845047; color: #d08376; background: transparent; cursor: pointer; font-size: 10px; }
@@ -391,6 +461,7 @@ h1 span { color: #b74032; }
 @media (prefers-reduced-motion: reduce) {
   .ai-stage-note.waiting .ai-dot { animation: none; }
   .point.legal-empty::after, .point.legal-capture::after { animation: none; }
+  .point.in-check .piece, .point.in-check::before { animation: none; }
 }
 
 footer {

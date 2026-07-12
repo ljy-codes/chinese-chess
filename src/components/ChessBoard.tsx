@@ -16,7 +16,9 @@ const sideName = (side: Side) => side === 'red' ? '红方' : '黑方';
 
 interface ChessBoardProps {
   boardIndex: BoardIndex;
+  checkedKingId?: string;
   disabled?: boolean;
+  isAiTurn?: boolean;
   lastMove?: Move;
   legalMoveKeys: Set<string>;
   recentMoves: RecentMoves;
@@ -24,10 +26,10 @@ interface ChessBoardProps {
   onSelect: (position: Position) => void;
 }
 
-export function ChessBoard({ boardIndex, disabled, lastMove, legalMoveKeys, recentMoves, selectedId, onSelect }: ChessBoardProps) {
+export function ChessBoard({ boardIndex, checkedKingId, disabled, isAiTurn, lastMove, legalMoveKeys, recentMoves, selectedId, onSelect }: ChessBoardProps) {
   return (
     <div className="board-wrap">
-      <div className={`board${disabled ? ' board-disabled' : ''}`} role="grid" aria-label="中国象棋棋盘" aria-disabled={disabled}>
+      <div className={`board${disabled ? ' board-disabled' : ''}${isAiTurn ? ' board-ai-turn' : ''}`} role="grid" aria-label="中国象棋棋盘" aria-disabled={disabled}>
         <div className="board-lines" aria-hidden="true">
           {HORIZONTAL_LINES.map((index) => <i className="horizontal" style={{ top: `${index * 11.111}%` }} key={`h-${index}`} />)}
           {VERTICAL_LINES.map((index) => <i className={`vertical v-${index}`} style={{ left: `${index * 12.5}%` }} key={`v-${index}`} />)}
@@ -42,9 +44,10 @@ export function ChessBoard({ boardIndex, disabled, lastMove, legalMoveKeys, rece
           const isLast = lastMove && (samePosition(lastMove.from, position) || samePosition(lastMove.to, position));
           const moveMarkers = getMoveMarkers(position, recentMoves);
           const legalClass = legal ? piece ? ' legal legal-capture' : ' legal legal-empty' : '';
+          const checkClass = piece?.id === checkedKingId ? ' in-check' : '';
           return (
             <button
-              className={`point${legalClass}${piece && selectedId === piece.id ? ' selected' : ''}${isLast ? ' last' : ''}`}
+              className={`point${legalClass}${checkClass}${piece && selectedId === piece.id ? ' selected' : ''}${isLast ? ' last' : ''}`}
               style={{ left: `${5.4 + position.col * 11.15}%`, top: `${5.4 + position.row * 9.91}%` }}
               onClick={() => onSelect(position)}
               disabled={disabled}
