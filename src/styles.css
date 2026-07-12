@@ -328,8 +328,19 @@ h1 span { color: #b74032; }
 }
 
 .ai-stage-note.waiting .ai-dot { background: #c84838; box-shadow: 0 0 9px rgba(200, 72, 56, .75); }
+.ai-stage-note.waiting .ai-dot { animation: ai-pulse .8s ease-in-out infinite alternate; }
+.ai-stage-note.failed { border-left-color: #9f3f34; }
 .ai-stage-note p { display: flex; flex-direction: column; gap: 3px; margin: 0; color: #7e6b52; font-size: 10px; line-height: 1.55; }
 .ai-stage-note strong { color: #cdb28a; font-size: 12px; }
+.ai-stage-note button { margin-left: auto; border: 1px solid #845047; color: #d08376; background: transparent; cursor: pointer; font-size: 10px; }
+
+@keyframes ai-pulse {
+  to { transform: scale(1.55); opacity: .55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-stage-note.waiting .ai-dot { animation: none; }
+}
 
 footer {
   margin: 14px auto 0;

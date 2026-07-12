@@ -8,8 +8,8 @@
 | --- | --- | --- |
 | 1. 基线和架构整理 | 已完成 | 基线记录、文档、拆分 App 职责、规则回归测试 |
 | 2. 游戏模式和状态模型 | 已完成 | 模式、玩家阵营、难度、游戏与局面版本标识 |
-| 3. 基础 AI | 未开始 | 评估、合法着法枚举、Negamax、Alpha-Beta、难度测试 |
-| 4. Worker 和高级搜索 | 未开始 | Worker、取消、迭代加深、排序、置换表、统计 |
+| 3. 基础 AI | 已完成 | 评估、合法着法枚举、Negamax、Alpha-Beta、难度测试 |
+| 4. Worker 和高级搜索 | 进行中 | Worker、取消、迭代加深和统计已完成；置换表等待完善 |
 | 5. 声音和动画 | 未开始 | AudioManager、音频降级、动画与 reduced motion |
 | 6. 棋谱和存储 | 未开始 | 标准记谱、回放、导入导出、存档、人机悔棋 |
 | 7. 质量收尾 | 未开始 | 移动端、完整测试、README、Pages 产物验证 |
@@ -166,3 +166,45 @@ npm run build   成功，27 modules transformed
 ```
 
 下一阶段是“基础 AI”。阶段三将实现合法着法枚举、局面评估、Negamax、Alpha-Beta、搜索超时和难度候选选择，并使用小局面测试正确性；Web Worker 和高级搜索优化仍留到阶段四。
+
+## 人机响应修复与阶段三验收记录
+
+完成日期：2026-07-12
+
+### 根因
+
+阶段二上线版本只有 AI 回合识别和棋盘锁定，没有搜索实现、Worker 或自动落子触发。所谓“机器几分钟才动”实际是机器永远不会落子，并非搜索本身过慢。
+
+### 新增和修改文件
+
+- 新增 `src/game/ai/types.ts`：定义带三重身份字段的搜索请求、结果和错误消息。
+- 新增 `src/game/ai/evaluation.ts`：集中棋子价值、位置、活动度、过河兵和将军评估。
+- 新增 `src/game/ai/search.ts`：合法着法枚举、Negamax、Alpha-Beta、迭代加深、吃子/将军排序、固定种子候选选择和超时返回。
+- 新增 `src/game/ai/search.test.ts`：覆盖合法着法、无着返回空、吃高价值子、固定种子和注入时钟超时。
+- 新增 `src/workers/chess-ai.worker.ts`：在独立 Worker 中执行搜索并转换可恢复错误。
+- 新增 `src/hooks/useChessAi.ts`：管理 Worker 生命周期、主线程看门狗、卸载终止和响应身份校验。
+- 修改 `src/hooks/useChessGame.ts`：自动触发 AI，二次验证返回着法并应用到当前局面。
+- 修改 `src/components/SettingsPanel.tsx` 和 `src/styles.css`：显示思考上限、动态状态、错误重试和轻量动画。
+- 修改 `src/game/ai/config.ts`：将五档硬上限收紧为 100ms、250ms、600ms、1200ms 和 2000ms。
+- 修改 `README.md`：补充本地 Worker AI 运行说明。
+
+### 响应与安全设计
+
+- 所有 AI 候选均通过现有 `getLegalMoves` 和 `makeMove` 生成。
+- Worker 返回后主线程再次调用 `isLegalMove`，禁止应用非法着法。
+- 响应必须同时匹配 `gameId`、`positionVersion` 和 `requestId`。
+- 重开、悔棋、切换设置或组件卸载会终止旧 Worker。
+- 搜索内部按时钟停止，主线程另设 `timeLimitMs + 750ms` 看门狗强制终止失控 Worker。
+- 超时时使用最近完成的迭代；即使深度一未完成，也有排序后的合法保底着法。
+- 叶节点不再重复枚举双方完整合法着法，AI 测试耗时由约 1.7 秒降至约 0.25 秒。
+- Vite 生产构建已生成独立哈希 Worker 资源，不使用硬编码根路径，兼容 `/chinese-chess/`。
+
+### 验证结果
+
+```text
+npm test        成功，4 files、19/19 tests passed
+npm run lint    成功
+npm run build   成功，生成独立 chess-ai.worker-*.js
+```
+
+阶段四仍需完善置换表、Zobrist Hash、Killer Move、History Heuristic 和更完整的 Principal Variation 排序；这些不影响本次“机器必须快速合法落子”的修复。

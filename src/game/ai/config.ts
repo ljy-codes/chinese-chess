@@ -21,7 +21,7 @@ export const AI_DIFFICULTY_CONFIG: Record<AiDifficulty, AiDifficultyConfig> = {
   easy: {
     label: '简单',
     maxDepth: 2,
-    timeLimitMs: 300,
+    timeLimitMs: 250,
     candidateRange: 3,
     useAdvancedOrdering: false,
     useTranspositionTable: false,
@@ -29,7 +29,7 @@ export const AI_DIFFICULTY_CONFIG: Record<AiDifficulty, AiDifficultyConfig> = {
   normal: {
     label: '普通',
     maxDepth: 4,
-    timeLimitMs: 800,
+    timeLimitMs: 600,
     candidateRange: 1,
     useAdvancedOrdering: true,
     useTranspositionTable: false,
@@ -37,7 +37,7 @@ export const AI_DIFFICULTY_CONFIG: Record<AiDifficulty, AiDifficultyConfig> = {
   hard: {
     label: '困难',
     maxDepth: 6,
-    timeLimitMs: 2000,
+    timeLimitMs: 1200,
     candidateRange: 1,
     useAdvancedOrdering: true,
     useTranspositionTable: true,
@@ -45,7 +45,7 @@ export const AI_DIFFICULTY_CONFIG: Record<AiDifficulty, AiDifficultyConfig> = {
   master: {
     label: '大师',
     maxDepth: 8,
-    timeLimitMs: 4000,
+    timeLimitMs: 2000,
     candidateRange: 1,
     useAdvancedOrdering: true,
     useTranspositionTable: true,

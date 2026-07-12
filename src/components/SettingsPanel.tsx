@@ -1,14 +1,19 @@
 import { AI_DIFFICULTY_CONFIG } from '../game/ai/config';
+import type { AiSearchResult } from '../game/ai/types';
 import type { AiDifficulty, GameMode, GameSettings, PlayerSidePreference } from '../game/types';
 
 interface SettingsPanelProps {
+  aiError?: string;
+  aiStats?: AiSearchResult;
   humanSide: 'red' | 'black';
   isAiTurn: boolean;
+  isAiThinking: boolean;
   settings: GameSettings;
   onChange: (settings: GameSettings) => void;
+  onRetryAi: () => void;
 }
 
-export function SettingsPanel({ humanSide, isAiTurn, settings, onChange }: SettingsPanelProps) {
+export function SettingsPanel({ aiError, aiStats, humanSide, isAiTurn, isAiThinking, settings, onChange, onRetryAi }: SettingsPanelProps) {
   const update = <Key extends keyof GameSettings>(key: Key, value: GameSettings[Key]) => {
     onChange({ ...settings, [key]: value });
   };
@@ -46,12 +51,19 @@ export function SettingsPanel({ humanSide, isAiTurn, settings, onChange }: Setti
               ))}
             </select>
           </label>
-          <div className={`ai-stage-note${isAiTurn ? ' waiting' : ''}`}>
-            <span className="ai-dot" />
+          <div className={`ai-stage-note${isAiThinking ? ' waiting' : ''}${aiError ? ' failed' : ''}`}>
+            <span className="ai-dot" aria-hidden="true" />
             <p>
               <strong>你执{humanSide === 'red' ? '红' : '黑'}</strong>
-              {isAiTurn ? 'AI 搜索引擎待下一阶段接入' : `${AI_DIFFICULTY_CONFIG[settings.aiDifficulty].label}难度`}
+              {aiError
+                ? aiError
+                : isAiThinking
+                  ? `AI 思考中 · 最长 ${AI_DIFFICULTY_CONFIG[settings.aiDifficulty].timeLimitMs}ms`
+                  : aiStats
+                    ? `深度 ${aiStats.depth} · ${aiStats.nodes.toLocaleString()} 节点 · ${Math.round(aiStats.elapsedMs)}ms`
+                    : isAiTurn ? '准备计算' : `${AI_DIFFICULTY_CONFIG[settings.aiDifficulty].label}难度`}
             </p>
+            {aiError && <button type="button" onClick={onRetryAi}>重试</button>}
           </div>
         </>
       )}

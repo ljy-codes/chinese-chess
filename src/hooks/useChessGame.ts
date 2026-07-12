@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react';
-import { getGameStatus, getLegalMoves, makeMove } from '../game/chess';
-import { canHumanMove, createGameState, createId } from '../game/game-state';
+import { getGameStatus, getLegalMoves, isLegalMove, makeMove } from '../game/chess';
+import { AI_DIFFICULTY_CONFIG } from '../game/ai/config';
+import type { AiSearchRequest, AiSearchResult } from '../game/ai/types';
+import { canHumanMove, createGameState, createId, isCurrentRequest } from '../game/game-state';
 import type { GameSettings, Piece, Position } from '../game/types';
+import { useChessAi } from './useChessAi';
 
 export const positionKey = ({ row, col }: Position) => `${row}-${col}`;
 
@@ -28,6 +31,46 @@ export function useChessGame() {
   );
   const lastMove = history.at(-1)?.move;
   const isAiTurn = game.settings.mode === 'human-vs-ai' && !canHumanMove(game);
+  const aiConfig = AI_DIFFICULTY_CONFIG[game.settings.aiDifficulty];
+  const aiRequest = useMemo<AiSearchRequest | null>(() => {
+    if (!isAiTurn || status.kind === 'checkmate' || status.kind === 'stalemate') return null;
+    return {
+      type: 'search',
+      requestId: game.requestId,
+      gameId: game.gameId,
+      positionVersion: game.positionVersion,
+      pieces: game.pieces,
+      side: game.turn,
+      difficulty: game.settings.aiDifficulty,
+      timeLimitMs: aiConfig.timeLimitMs,
+      maxDepth: aiConfig.maxDepth,
+      randomSeed: game.positionVersion + game.history.length * 97,
+    };
+  }, [aiConfig.maxDepth, aiConfig.timeLimitMs, game, isAiTurn, status.kind]);
+
+  function applyAiResult(result: AiSearchResult) {
+    setGame((current) => {
+      if (!isCurrentRequest(current, result) || current.settings.mode !== 'human-vs-ai' || !result.bestMove) {
+        return current;
+      }
+      const piece = current.pieces.find((candidate) => candidate.id === result.bestMove?.piece.id);
+      if (!piece || piece.side !== current.turn || !isLegalMove(current.pieces, piece, result.bestMove.to)) {
+        return current;
+      }
+      const moved = makeMove(current.pieces, piece, result.bestMove.to);
+      return {
+        ...current,
+        pieces: moved.pieces,
+        turn: current.turn === 'red' ? 'black' : 'red',
+        selectedId: undefined,
+        history: [...current.history, { pieces: current.pieces, turn: current.turn, move: moved.move }],
+        positionVersion: current.positionVersion + 1,
+        requestId: createId('request'),
+      };
+    });
+  }
+
+  const ai = useChessAi(aiRequest, applyAiResult);
 
   function selectPosition(position: Position) {
     if (status.kind === 'checkmate' || status.kind === 'stalemate' || !canHumanMove(game)) return;
@@ -76,18 +119,26 @@ export function useChessGame() {
     setGame(createGameState(settings));
   }
 
+  function retryAi() {
+    setGame((current) => ({ ...current, requestId: createId('request') }));
+  }
+
   return {
     boardIndex,
     gameId: game.gameId,
     humanSide: game.humanSide,
     history,
     isAiTurn,
+    aiError: ai.error,
+    aiStats: ai.stats,
+    isAiThinking: ai.isThinking,
     lastMove,
     legalMoveKeys,
     pieces,
     positionVersion: game.positionVersion,
     requestId: game.requestId,
     restart,
+    retryAi,
     selectedId,
     selectPosition,
     settings: game.settings,

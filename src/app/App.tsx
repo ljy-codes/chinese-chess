@@ -36,15 +36,19 @@ function App() {
           <PlayerStatus controller={redController} side="red" turn={game.turn} />
         </div>
         <SettingsPanel
+          aiError={game.aiError}
+          aiStats={game.aiStats}
           humanSide={game.humanSide}
           isAiTurn={game.isAiTurn}
+          isAiThinking={game.isAiThinking}
           settings={game.settings}
           onChange={game.updateSettings}
+          onRetryAi={game.retryAi}
         />
       </section>
 
       <section className="control-bar">
-        <GameStatusPanel isAiTurn={game.isAiTurn} moveCount={game.history.length} status={game.status} turn={game.turn} />
+        <GameStatusPanel isAiTurn={game.isAiThinking} moveCount={game.history.length} status={game.status} turn={game.turn} />
         <GameControls canUndo={game.history.length > 0} onRestart={game.restart} onUndo={game.undo} />
         <MoveHistory lastMove={game.lastMove} />
       </section>
