@@ -45,6 +45,7 @@ export interface GameState {
   settings: GameSettings;
   humanSide: Side;
   gameId: string;
+  startedAt: number;
   positionVersion: number;
   requestId: string;
 }

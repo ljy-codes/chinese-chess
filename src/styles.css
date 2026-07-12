@@ -620,9 +620,15 @@ body {
   height: 100%;
   min-width: 0;
   min-height: 0;
-  grid-template-columns: minmax(0, 1fr) clamp(270px, 23vw, 350px);
+  grid-template-columns:
+    minmax(0, min(
+      calc((100dvh - clamp(36px, 4vw, 60px)) * 8 / 9),
+      calc(100vw - clamp(320px, 25vw, 410px) - clamp(10px, 1.5vw, 24px) - clamp(16px, 2.5vw, 36px))
+    ))
+    clamp(320px, 25vw, 410px);
   gap: clamp(10px, 1.5vw, 24px);
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
 }
 
 .board-stage {
@@ -634,7 +640,7 @@ body {
 
 .board-wrap {
   container-type: inline-size;
-  width: min(100%, calc((100dvh - clamp(36px, 4vw, 60px)) * 8 / 9));
+  width: 100%;
   padding: clamp(10px, 1.35vw, 20px);
 }
 
@@ -650,6 +656,8 @@ body {
   width: 100%;
   min-width: 0;
   min-height: 0;
+  max-height: 100%;
+  align-self: center;
   display: flex;
   flex-direction: column;
   gap: clamp(8px, 1.2vh, 14px);
@@ -755,7 +763,7 @@ h1 {
 .actions {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .actions button {
@@ -764,7 +772,7 @@ h1 {
 }
 
 .settings-panel {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-width: 0;
   min-height: 0;
   align-self: stretch;
@@ -956,6 +964,105 @@ h1 {
   color: #cdb99b;
 }
 
+.history-backdrop {
+  position: fixed;
+  z-index: 40;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(8, 7, 6, .72);
+  backdrop-filter: blur(5px);
+}
+
+.history-dialog {
+  width: min(820px, 94vw);
+  max-height: min(680px, 88dvh);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(196, 154, 83, .62);
+  color: #dec9a3;
+  background:
+    linear-gradient(145deg, rgba(122, 46, 34, .1), transparent 42%),
+    #171411;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .72), inset 0 0 35px rgba(196, 154, 83, .08);
+}
+
+.history-dialog > header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 20px 15px;
+  border-bottom: 1px solid rgba(196, 154, 83, .28);
+}
+
+.history-dialog header span {
+  color: #8e7657;
+  font-size: 10px;
+  letter-spacing: .28em;
+}
+
+.history-dialog h2 {
+  margin: 3px 0 0;
+  color: #e7cf9c;
+  font: 32px/1 'Ma Shan Zheng', cursive;
+  letter-spacing: .16em;
+}
+
+.history-dialog button {
+  padding: 7px 14px;
+  border: 1px solid #705c40;
+  color: #c8af86;
+  background: transparent;
+  cursor: pointer;
+}
+
+.history-dialog button:hover { border-color: #b38a4d; color: #f0dfbd; }
+
+.history-table-wrap {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.history-dialog table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.history-dialog th,
+.history-dialog td {
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba(196, 154, 83, .15);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.history-dialog th {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  color: #8e7657;
+  background: #171411;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: .14em;
+}
+
+.history-dialog tbody tr:hover { background: rgba(216, 168, 95, .06); }
+.history-dialog td strong.win { color: #e1b655; }
+.history-dialog td strong.lose { color: #a98772; }
+
+.history-dialog td.history-empty {
+  margin: 0;
+  padding: 54px 20px;
+  color: #887660;
+  text-align: center;
+}
+
 @keyframes victory-rays {
   to { transform: translate(-50%, -50%) rotate(360deg); }
 }
@@ -1041,7 +1148,7 @@ h1 {
   }
   .status-kicker, .last-move span { font-size: 8px; }
   .status strong, .last-move strong { font-size: 11px; }
-  .actions { grid-column: auto; grid-template-columns: auto auto; }
+  .actions { grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); }
   .actions button { padding: 5px 6px; font-size: 10px; }
   .settings-panel {
     grid-column: 1 / -1;
@@ -1078,6 +1185,11 @@ h1 {
   .command-deck footer { display: none; }
   .result-dialog.win { padding: 34px 24px 28px; }
   .firecracker { display: none; }
+  .history-backdrop { padding: 8px; }
+  .history-dialog { width: 100%; max-height: 86dvh; }
+  .history-dialog > header { padding: 13px 14px 11px; }
+  .history-dialog h2 { font-size: 27px; }
+  .history-dialog th, .history-dialog td { padding: 10px 12px; font-size: 11px; }
 }
 
 @media (max-width: 380px) and (orientation: portrait), (max-height: 590px) and (orientation: portrait) {

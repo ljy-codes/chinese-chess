@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { ChessBoard } from '../components/ChessBoard';
 import { GameControls } from '../components/GameControls';
+import { GameHistoryDialog } from '../components/GameHistoryDialog';
 import { GameStatusPanel } from '../components/GameStatusPanel';
 import { GameResultDialog } from '../components/GameResultDialog';
 import { MoveHistory } from '../components/MoveHistory';
@@ -7,10 +9,18 @@ import { PlayerStatus } from '../components/PlayerStatus';
 import { SettingsPanel } from '../components/SettingsPanel';
 import { useChessGame } from '../hooks/useChessGame';
 import { useGameAudio } from '../hooks/useGameAudio';
+import { useGameHistory } from '../hooks/useGameHistory';
 
 function App() {
   const game = useChessGame();
+  const [historyOpen, setHistoryOpen] = useState(false);
   const audio = useGameAudio({ gameId: game.gameId, gameOver: game.gameOver, history: game.history });
+  const gameHistory = useGameHistory({
+    gameId: game.gameId,
+    startedAt: game.startedAt,
+    difficulty: game.settings.aiDifficulty,
+    outcome: game.resultView?.outcome,
+  });
   const redController = game.humanSide === 'red' ? 'human' : 'ai';
   const blackController = game.humanSide === 'black' ? 'human' : 'ai';
 
@@ -46,7 +56,7 @@ function App() {
           <section className="control-bar">
             <GameStatusPanel isAiTurn={game.isAiTurn} moveCount={game.history.length} status={game.status} turn={game.turn} />
             <MoveHistory lastMove={game.lastMove} />
-            <GameControls canUndo={game.canUndo} onRestart={game.restart} onUndo={game.undo} />
+            <GameControls canUndo={game.canUndo} onShowHistory={() => setHistoryOpen(true)} onRestart={game.restart} onUndo={game.undo} />
           </section>
           <SettingsPanel
             aiError={game.aiError}
@@ -66,6 +76,7 @@ function App() {
           <footer>观棋不语真君子 · 举手无悔大丈夫</footer>
         </aside>
       </section>
+      {historyOpen && <GameHistoryDialog records={gameHistory} onClose={() => setHistoryOpen(false)} />}
       {game.resultView && <GameResultDialog result={game.resultView} onRestart={game.restart} />}
     </main>
   );

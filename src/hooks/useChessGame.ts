@@ -115,6 +115,7 @@ export function useChessGame() {
     selectedId,
     selectPosition,
     settings: game.settings,
+    startedAt: game.startedAt,
     status,
     turn,
     undo,

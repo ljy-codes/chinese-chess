@@ -11,10 +11,11 @@ const idFactory = (scope: 'game' | 'request') => `${scope}-fixed`;
 
 describe('game state model', () => {
   it('starts a human-vs-ai game with the player controlling red', () => {
-    const state = createGameState(undefined, idFactory);
+    const state = createGameState(undefined, idFactory, Math.random, () => 1234);
     expect(state.turn).toBe('red');
     expect(state.humanSide).toBe('red');
     expect(state.positionVersion).toBe(0);
+    expect(state.startedAt).toBe(1234);
     expect(canHumanMove(state)).toBe(true);
   });
 

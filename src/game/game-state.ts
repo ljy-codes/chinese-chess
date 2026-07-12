@@ -27,6 +27,7 @@ export function createGameState(
   settings: GameSettings = DEFAULT_GAME_SETTINGS,
   idFactory: IdFactory = createId,
   random: () => number = Math.random,
+  now: () => number = Date.now,
 ): GameState {
   return {
     pieces: createInitialPieces(),
@@ -35,6 +36,7 @@ export function createGameState(
     settings,
     humanSide: resolveHumanSide(settings.playerSide, random),
     gameId: idFactory('game'),
+    startedAt: now(),
     positionVersion: 0,
     requestId: idFactory('request'),
   };
