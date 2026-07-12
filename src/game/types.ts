@@ -1,5 +1,8 @@
 export type Side = 'red' | 'black';
 export type PieceType = 'king' | 'advisor' | 'elephant' | 'horse' | 'rook' | 'cannon' | 'pawn';
+export type GameMode = 'human-vs-human' | 'human-vs-ai';
+export type PlayerSidePreference = Side | 'random';
+export type AiDifficulty = 'beginner' | 'easy' | 'normal' | 'hard' | 'master';
 
 export interface Position {
   row: number;
@@ -22,4 +25,28 @@ export interface Move {
 export interface GameStatus {
   kind: 'playing' | 'check' | 'checkmate' | 'stalemate';
   winner?: Side;
+}
+
+export interface HistoryEntry {
+  pieces: Piece[];
+  turn: Side;
+  move: Move;
+}
+
+export interface GameSettings {
+  mode: GameMode;
+  playerSide: PlayerSidePreference;
+  aiDifficulty: AiDifficulty;
+}
+
+export interface GameState {
+  pieces: Piece[];
+  turn: Side;
+  selectedId?: string;
+  history: HistoryEntry[];
+  settings: GameSettings;
+  humanSide: Side;
+  gameId: string;
+  positionVersion: number;
+  requestId: string;
 }

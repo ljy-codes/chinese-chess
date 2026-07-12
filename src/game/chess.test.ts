@@ -19,6 +19,14 @@ describe('Chinese chess rules', () => {
     expect(isLegalMove([...kings, horse], horse, { row: 7, col: 2 })).toBe(true);
   });
 
+  it('blocks an elephant when its eye is occupied', () => {
+    const elephant = piece('e', 'red', 'elephant', 9, 2);
+    const blocker = piece('p', 'red', 'pawn', 8, 3);
+    const kings = [piece('rk', 'red', 'king', 9, 4), piece('bk', 'black', 'king', 0, 3)];
+    expect(isLegalMove([...kings, elephant, blocker], elephant, { row: 7, col: 4 })).toBe(false);
+    expect(isLegalMove([...kings, elephant], elephant, { row: 7, col: 4 })).toBe(true);
+  });
+
   it('requires exactly one screen for a cannon capture', () => {
     const cannon = piece('c', 'red', 'cannon', 7, 1);
     const screen = piece('s', 'red', 'pawn', 5, 1);
@@ -45,6 +53,15 @@ describe('Chinese chess rules', () => {
     expect(isInCheck([redKing, blackKing], 'red')).toBe(true);
   });
 
+  it('filters a move that exposes its own king to attack', () => {
+    const redKing = piece('rk', 'red', 'king', 9, 4);
+    const blackKing = piece('bk', 'black', 'king', 0, 3);
+    const attacker = piece('br', 'black', 'rook', 0, 4);
+    const blocker = piece('rr', 'red', 'rook', 8, 4);
+    expect(isLegalMove([redKing, blackKing, attacker, blocker], blocker, { row: 8, col: 3 })).toBe(false);
+    expect(isLegalMove([redKing, blackKing, attacker, blocker], blocker, { row: 7, col: 4 })).toBe(true);
+  });
+
   it('reports checkmate when the checked king has no legal move', () => {
     const pieces = [
       piece('bk', 'black', 'king', 0, 4),
@@ -55,5 +72,17 @@ describe('Chinese chess rules', () => {
     ];
     expect(getLegalMoves(pieces, pieces[0])).toHaveLength(0);
     expect(getGameStatus(pieces, 'black')).toEqual({ kind: 'checkmate', winner: 'red' });
+  });
+
+  it('reports stalemate when a side is not checked but has no legal move', () => {
+    const pieces = [
+      piece('bk', 'black', 'king', 0, 4),
+      piece('rk', 'red', 'king', 9, 3),
+      piece('r1', 'red', 'rook', 2, 3),
+      piece('r2', 'red', 'rook', 2, 5),
+      piece('r3', 'red', 'rook', 1, 0),
+    ];
+    expect(isInCheck(pieces, 'black')).toBe(false);
+    expect(getGameStatus(pieces, 'black')).toEqual({ kind: 'stalemate', winner: 'red' });
   });
 });
