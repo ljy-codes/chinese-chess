@@ -81,4 +81,29 @@ describe('AI search', () => {
     expect(result.bestMove).not.toBeNull();
     expect(result.elapsedMs).toBeLessThan(20);
   });
+
+  it('sees a forced recapture beyond the nominal horizon', () => {
+    const pieces = [
+      piece('rk', 'red', 'king', 9, 4),
+      piece('bk', 'black', 'king', 0, 3),
+      piece('rr', 'red', 'rook', 5, 0),
+      piece('bc', 'black', 'cannon', 5, 2),
+      piece('br', 'black', 'rook', 5, 4),
+    ];
+    const result = searchBestMove(request(pieces, { maxDepth: 1, timeLimitMs: 500 }));
+    expect(result.bestMove?.captured?.id).not.toBe('bc');
+  });
+
+  it('scores stalemate as a decisive loss', () => {
+    const pieces = [
+      piece('bk', 'black', 'king', 0, 4),
+      piece('rk', 'red', 'king', 9, 4),
+      piece('r1', 'red', 'rook', 1, 3),
+      piece('r2', 'red', 'rook', 1, 5),
+      piece('block', 'red', 'pawn', 5, 4),
+    ];
+    const result = searchBestMove(request(pieces, { side: 'black' }));
+    expect(result.bestMove).toBeNull();
+    expect(result.score).toBe(-1_000_000);
+  });
 });

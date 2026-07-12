@@ -6,5 +6,9 @@ interface ChessPieceProps {
 }
 
 export function ChessPiece({ piece }: ChessPieceProps) {
-  return <span className={`piece ${piece.side}`}>{PIECE_LABELS[piece.side][piece.type]}</span>;
+  return (
+    <span className={`piece ${piece.side}`}>
+      <span className="piece-glyph">{PIECE_LABELS[piece.side][piece.type]}</span>
+    </span>
+  );
 }

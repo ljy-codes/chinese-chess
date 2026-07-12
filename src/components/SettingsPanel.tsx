@@ -2,6 +2,7 @@ import { AI_DIFFICULTY_CONFIG } from '../game/ai/config';
 import type { AiSearchResult } from '../game/ai/types';
 import type { GameResultView } from '../game/game-result';
 import type { AiDifficulty, GameSettings, PlayerSidePreference } from '../game/types';
+import { AudioControls } from './AudioControls';
 
 interface SettingsPanelProps {
   aiError?: string;
@@ -13,9 +14,13 @@ interface SettingsPanelProps {
   settings: GameSettings;
   onChange: (settings: GameSettings) => void;
   onRetryAi: () => void;
+  audioEnabled: boolean;
+  audioMuted: boolean;
+  onEnableAudio: () => void;
+  onToggleAudio: () => void;
 }
 
-export function SettingsPanel({ aiError, aiStats, humanSide, isAiTurn, isAiThinking, result, settings, onChange, onRetryAi }: SettingsPanelProps) {
+export function SettingsPanel({ aiError, aiStats, humanSide, isAiTurn, isAiThinking, result, settings, onChange, onRetryAi, audioEnabled, audioMuted, onEnableAudio, onToggleAudio }: SettingsPanelProps) {
   const update = <Key extends keyof GameSettings>(key: Key, value: GameSettings[Key]) => {
     onChange({ ...settings, [key]: value });
   };
@@ -43,6 +48,7 @@ export function SettingsPanel({ aiError, aiStats, humanSide, isAiTurn, isAiThink
           ))}
         </select>
       </label>
+      <AudioControls enabled={audioEnabled} muted={audioMuted} onEnable={onEnableAudio} onToggleMute={onToggleAudio} />
       <div className={`ai-stage-note${isAiThinking ? ' waiting' : ''}${aiError ? ' failed' : ''}${result ? ` result ${result.outcome}` : ''}`}>
         <span className="ai-dot" aria-hidden="true" />
         <p>

@@ -6,14 +6,17 @@ import { MoveHistory } from '../components/MoveHistory';
 import { PlayerStatus } from '../components/PlayerStatus';
 import { SettingsPanel } from '../components/SettingsPanel';
 import { useChessGame } from '../hooks/useChessGame';
+import { useGameAudio } from '../hooks/useGameAudio';
 
 function App() {
   const game = useChessGame();
+  const audio = useGameAudio({ gameId: game.gameId, gameOver: game.gameOver, history: game.history });
   const redController = game.humanSide === 'red' ? 'human' : 'ai';
   const blackController = game.humanSide === 'black' ? 'human' : 'ai';
 
   return (
     <main className="app-shell">
+      <div className="ambient-grid" aria-hidden="true"><span /><span /><span /></div>
       <header className="masthead">
         <div className="seal" aria-hidden="true">弈</div>
         <div>
@@ -48,6 +51,10 @@ function App() {
           settings={game.settings}
           onChange={game.updateSettings}
           onRetryAi={game.retryAi}
+          audioEnabled={audio.enabled}
+          audioMuted={audio.muted}
+          onEnableAudio={audio.enable}
+          onToggleAudio={audio.toggleMute}
         />
       </section>
 
