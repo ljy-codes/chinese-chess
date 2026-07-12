@@ -28,7 +28,6 @@ function App() {
           <PlayerStatus controller={blackController} side="black" turn={game.turn} />
           <ChessBoard
             boardIndex={game.boardIndex}
-            checkedKingId={game.checkedKingId}
             disabled={game.isAiTurn || game.gameOver}
             isAiTurn={game.isAiTurn}
             lastMove={game.lastMove}

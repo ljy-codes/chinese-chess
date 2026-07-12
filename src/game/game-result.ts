@@ -1,4 +1,4 @@
-import type { GameStatus, Piece, Side } from './types';
+import type { GameStatus, Side } from './types';
 
 export interface GameResultView {
   outcome: 'win' | 'lose';
@@ -22,9 +22,4 @@ export function getGameResultView(status: GameStatus, humanSide: Side): GameResu
     title: `${sideName(status.winner)}胜`,
     detail: `${sideName(loser)}负 · ${status.kind === 'stalemate' ? '困毙' : '将死'}`,
   };
-}
-
-export function getCheckedKingId(status: GameStatus, pieces: Piece[], turn: Side): string | undefined {
-  if (status.kind !== 'check') return undefined;
-  return pieces.find((piece) => piece.side === turn && piece.type === 'king')?.id;
 }

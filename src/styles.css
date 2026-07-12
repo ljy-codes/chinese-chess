@@ -282,21 +282,6 @@ h1 span { color: #b74032; }
 .point.selected .piece { box-shadow: inset 0 0 0 2px #f1d890, inset 0 0 0 5px #9c7432, 0 0 16px rgba(236, 199, 112, .9); }
 .point.last:not(.selected) .piece { filter: brightness(1.08); }
 
-.point.in-check .piece {
-  animation: king-in-check .55s ease-in-out infinite alternate;
-}
-
-.point.in-check::before {
-  content: '';
-  position: absolute;
-  z-index: 7;
-  inset: -8%;
-  border: 4px solid #e43f30;
-  border-radius: 50%;
-  pointer-events: none;
-  animation: check-ring .55s ease-in-out infinite alternate;
-}
-
 .point.legal::after {
   content: '';
   position: absolute;
@@ -340,14 +325,6 @@ h1 span { color: #b74032; }
 
 @keyframes capture-breathe {
   to { transform: scale(1.06); opacity: .72; }
-}
-
-@keyframes king-in-check {
-  to { filter: brightness(1.45) saturate(1.25); box-shadow: inset 0 0 0 2px #f2d18b, inset 0 0 0 5px #9b3b26, 0 0 24px rgba(226, 48, 38, .95); }
-}
-
-@keyframes check-ring {
-  to { transform: scale(1.12); opacity: .35; }
 }
 
 .control-bar {
@@ -461,7 +438,6 @@ h1 span { color: #b74032; }
 @media (prefers-reduced-motion: reduce) {
   .ai-stage-note.waiting .ai-dot { animation: none; }
   .point.legal-empty::after, .point.legal-capture::after { animation: none; }
-  .point.in-check .piece, .point.in-check::before { animation: none; }
 }
 
 footer {

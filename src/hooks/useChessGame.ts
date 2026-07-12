@@ -4,7 +4,7 @@ import { AI_DIFFICULTY_CONFIG } from '../game/ai/config';
 import type { AiSearchRequest, AiSearchResult } from '../game/ai/types';
 import { getRecentMoves } from '../game/board-markers';
 import { applyAiSearchResult, canUndoHumanTurn, movePiece, undoHumanTurn } from '../game/game-engine';
-import { getCheckedKingId, getGameResultView, isGameOver } from '../game/game-result';
+import { getGameResultView, isGameOver } from '../game/game-result';
 import { canHumanMove, createGameState, createId } from '../game/game-state';
 import type { GameSettings, Piece, Position } from '../game/types';
 import { useChessAi } from './useChessAi';
@@ -36,7 +36,6 @@ export function useChessGame() {
   const recentMoves = useMemo(() => getRecentMoves(history), [history]);
   const gameOver = isGameOver(status);
   const resultView = getGameResultView(status, game.humanSide);
-  const checkedKingId = getCheckedKingId(status, pieces, turn);
   const isAiTurn = !gameOver && !canHumanMove(game);
   const aiConfig = AI_DIFFICULTY_CONFIG[game.settings.aiDifficulty];
   const aiRequest = useMemo<AiSearchRequest | null>(() => {
@@ -96,7 +95,6 @@ export function useChessGame() {
   return {
     boardIndex,
     canUndo: canUndoHumanTurn(game),
-    checkedKingId,
     gameId: game.gameId,
     gameOver,
     humanSide: game.humanSide,

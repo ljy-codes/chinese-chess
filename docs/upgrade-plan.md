@@ -221,7 +221,7 @@ npm run build   成功，生成独立 chess-ai.worker-*.js
 - `checkmate` 和 `stalemate` 状态优先于 AI 回合状态，终局后不再显示“AI 回合”或思考动画。
 - 终局会取消 Worker 请求、锁定棋盘并展示玩家视角的“胜利/惜败”结算层。
 - 结算层明确显示“红方胜/黑方负”或“黑方胜/红方负”，并提供“再来一局”入口。
-- 被将军时，仅当前受将一方的将帅显示朱红闪烁警示；减少动态效果时保留静态红圈。
+- 被将军时仅使用状态栏文字提示，不在棋盘上叠加闪烁或红圈，避免干扰棋局阅读。
 - 结果文案由纯函数 `src/game/game-result.ts` 生成，并覆盖胜、负和未结束状态测试。
 
 阶段四仍需完善置换表、Zobrist Hash、Killer Move、History Heuristic 和更完整的 Principal Variation 排序；这些不影响本次“机器必须快速合法落子”的修复。
