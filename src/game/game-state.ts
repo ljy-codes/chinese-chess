@@ -2,7 +2,6 @@ import { createInitialPieces } from './chess';
 import type { GameSettings, GameState, PlayerSidePreference, Side } from './types';
 
 export const DEFAULT_GAME_SETTINGS: GameSettings = {
-  mode: 'human-vs-human',
   playerSide: 'red',
   aiDifficulty: 'normal',
 };
@@ -42,7 +41,7 @@ export function createGameState(
 }
 
 export function canHumanMove(state: GameState): boolean {
-  return state.settings.mode === 'human-vs-human' || state.turn === state.humanSide;
+  return state.turn === state.humanSide;
 }
 
 export function isCurrentRequest(

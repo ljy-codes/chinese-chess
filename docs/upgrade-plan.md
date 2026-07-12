@@ -14,6 +14,8 @@
 | 6. 棋谱和存储 | 未开始 | 标准记谱、回放、导入导出、存档、人机悔棋 |
 | 7. 质量收尾 | 未开始 | 移动端、完整测试、README、Pages 产物验证 |
 
+当前产品决策：仅保留人机对弈，不再提供双人模式选择。`GameSettings` 已移除模式字段，默认始终启动人机局。
+
 ## 1. 游戏状态重构
 
 - 阶段一将现有棋局状态和操作从 `App.tsx` 迁入 `useChessGame`。
@@ -208,3 +210,21 @@ npm run build   成功，生成独立 chess-ai.worker-*.js
 ```
 
 阶段四仍需完善置换表、Zobrist Hash、Killer Move、History Heuristic 和更完整的 Principal Variation 排序；这些不影响本次“机器必须快速合法落子”的修复。
+
+## 游戏技能重构记录
+
+完成日期：2026-07-12
+
+- 依据 chess-engine 技能，将权威落子、AI 响应应用和悔棋迁入纯函数 `src/game/game-engine.ts`，React Hook 只负责编排 UI 与 Worker。
+- 依据 minimax-alpha-beta 技能，深度边界显式识别将帅被吃和将死，保留 `MATE_SCORE - ply`，并用上一轮主变化优先排序根节点。
+- 依据 ai-agent 技能，AI 仍只能从现有合法着法生成器选择动作，主线程应用前再次验证，超时保留合法保底着法。
+- 依据 testing-game 技能，新增人机状态转换测试：AI 思考中撤一步、AI 回复后撤两步、玩家执黑时不能撤销 AI 开局首步、过期 AI 响应丢弃。
+- 人机模式成为唯一产品模式，删除模式字段和双人入口，只保留执棋方与难度。
+
+验证结果：
+
+```text
+npm test        成功，5 files、24/24 tests passed
+npm run lint    成功
+npm run build   成功，生成独立 chess-ai.worker-*.js
+```

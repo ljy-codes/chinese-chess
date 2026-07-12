@@ -54,6 +54,17 @@ describe('AI search', () => {
     expect(result.bestMove?.captured?.id).toBe('br');
   });
 
+  it('finds an immediate king capture', () => {
+    const pieces = [
+      piece('rk', 'red', 'king', 9, 4),
+      piece('bk', 'black', 'king', 0, 4),
+      piece('rr', 'red', 'rook', 1, 4),
+    ];
+    const result = searchBestMove(request(pieces, { maxDepth: 1, timeLimitMs: 500 }));
+    expect(result.bestMove?.captured?.id).toBe('bk');
+    expect(result.score).toBeGreaterThan(900_000);
+  });
+
   it('is reproducible with a fixed random seed', () => {
     const pieces = createInitialPieces();
     const first = searchBestMove(request(pieces, { difficulty: 'beginner', maxDepth: 1, timeLimitMs: 500 }), () => 0);

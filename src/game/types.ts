@@ -1,6 +1,5 @@
 export type Side = 'red' | 'black';
 export type PieceType = 'king' | 'advisor' | 'elephant' | 'horse' | 'rook' | 'cannon' | 'pawn';
-export type GameMode = 'human-vs-human' | 'human-vs-ai';
 export type PlayerSidePreference = Side | 'random';
 export type AiDifficulty = 'beginner' | 'easy' | 'normal' | 'hard' | 'master';
 
@@ -34,7 +33,6 @@ export interface HistoryEntry {
 }
 
 export interface GameSettings {
-  mode: GameMode;
   playerSide: PlayerSidePreference;
   aiDifficulty: AiDifficulty;
 }

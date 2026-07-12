@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { getGameStatus, getLegalMoves, isLegalMove, makeMove } from '../game/chess';
+import { getGameStatus, getLegalMoves } from '../game/chess';
 import { AI_DIFFICULTY_CONFIG } from '../game/ai/config';
 import type { AiSearchRequest, AiSearchResult } from '../game/ai/types';
-import { canHumanMove, createGameState, createId, isCurrentRequest } from '../game/game-state';
+import { applyAiSearchResult, canUndoHumanTurn, movePiece, undoHumanTurn } from '../game/game-engine';
+import { canHumanMove, createGameState, createId } from '../game/game-state';
 import type { GameSettings, Piece, Position } from '../game/types';
 import { useChessAi } from './useChessAi';
 
@@ -30,7 +31,7 @@ export function useChessGame() {
     [pieces],
   );
   const lastMove = history.at(-1)?.move;
-  const isAiTurn = game.settings.mode === 'human-vs-ai' && !canHumanMove(game);
+  const isAiTurn = !canHumanMove(game);
   const aiConfig = AI_DIFFICULTY_CONFIG[game.settings.aiDifficulty];
   const aiRequest = useMemo<AiSearchRequest | null>(() => {
     if (!isAiTurn || status.kind === 'checkmate' || status.kind === 'stalemate') return null;
@@ -49,25 +50,7 @@ export function useChessGame() {
   }, [aiConfig.maxDepth, aiConfig.timeLimitMs, game, isAiTurn, status.kind]);
 
   function applyAiResult(result: AiSearchResult) {
-    setGame((current) => {
-      if (!isCurrentRequest(current, result) || current.settings.mode !== 'human-vs-ai' || !result.bestMove) {
-        return current;
-      }
-      const piece = current.pieces.find((candidate) => candidate.id === result.bestMove?.piece.id);
-      if (!piece || piece.side !== current.turn || !isLegalMove(current.pieces, piece, result.bestMove.to)) {
-        return current;
-      }
-      const moved = makeMove(current.pieces, piece, result.bestMove.to);
-      return {
-        ...current,
-        pieces: moved.pieces,
-        turn: current.turn === 'red' ? 'black' : 'red',
-        selectedId: undefined,
-        history: [...current.history, { pieces: current.pieces, turn: current.turn, move: moved.move }],
-        positionVersion: current.positionVersion + 1,
-        requestId: createId('request'),
-      };
-    });
+    setGame((current) => applyAiSearchResult(current, result, createId('request')));
   }
 
   const ai = useChessAi(aiRequest, applyAiResult);
@@ -85,30 +68,11 @@ export function useChessGame() {
       return;
     }
 
-    const result = makeMove(pieces, selected, position);
-    setGame((current) => ({
-      ...current,
-      pieces: result.pieces,
-      turn: turn === 'red' ? 'black' : 'red',
-      selectedId: undefined,
-      history: [...current.history, { pieces, turn, move: result.move }],
-      positionVersion: current.positionVersion + 1,
-      requestId: createId('request'),
-    }));
+    setGame((current) => movePiece(current, selected.id, position, createId('request')) ?? current);
   }
 
   function undo() {
-    const previous = history.at(-1);
-    if (!previous) return;
-    setGame((current) => ({
-      ...current,
-      pieces: previous.pieces,
-      turn: previous.turn,
-      history: current.history.slice(0, -1),
-      selectedId: undefined,
-      positionVersion: current.positionVersion + 1,
-      requestId: createId('request'),
-    }));
+    setGame((current) => undoHumanTurn(current, createId('request')));
   }
 
   function restart() {
@@ -125,6 +89,7 @@ export function useChessGame() {
 
   return {
     boardIndex,
+    canUndo: canUndoHumanTurn(game),
     gameId: game.gameId,
     humanSide: game.humanSide,
     history,

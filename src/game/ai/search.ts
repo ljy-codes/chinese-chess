@@ -22,6 +22,10 @@ interface NodeResult {
 }
 
 const opposite = (side: Side): Side => side === 'red' ? 'black' : 'red';
+const sameMove = (a: Move | undefined, b: Move) => Boolean(a
+  && a.piece.id === b.piece.id
+  && a.to.row === b.to.row
+  && a.to.col === b.to.col);
 
 export function generateLegalSearchMoves(pieces: Piece[], side: Side): SearchMove[] {
   const moves: SearchMove[] = [];
@@ -33,6 +37,10 @@ export function generateLegalSearchMoves(pieces: Piece[], side: Side): SearchMov
     }
   }
   return moves;
+}
+
+function hasLegalMove(pieces: Piece[], side: Side): boolean {
+  return pieces.some((piece) => piece.side === side && getLegalMoves(pieces, piece).length > 0);
 }
 
 function moveScore(candidate: SearchMove, side: Side): number {
@@ -62,7 +70,14 @@ function negamax(
     context.timedOut = true;
     return { score: evaluatePosition(pieces, side), line: [] };
   }
-  if (depth === 0) return { score: evaluatePosition(pieces, side), line: [] };
+  const kingExists = pieces.some((piece) => piece.side === side && piece.type === 'king');
+  if (!kingExists) return { score: -MATE_SCORE + ply, line: [] };
+  if (depth === 0) {
+    if (!hasLegalMove(pieces, side)) {
+      return { score: isInCheck(pieces, side) ? -MATE_SCORE + ply : -MATE_SCORE / 2 + ply, line: [] };
+    }
+    return { score: evaluatePosition(pieces, side), line: [] };
+  }
 
   const moves = orderedMoves(pieces, side);
   if (moves.length === 0) {
@@ -124,6 +139,7 @@ export function searchBestMove(request: AiSearchRequest, now: () => number = () 
 
   for (let depth = 1; depth <= request.maxDepth; depth += 1) {
     const iteration: { move: Move; score: number; line: Move[] }[] = [];
+    rootMoves.sort((a, b) => Number(sameMove(bestLine[0], b.move)) - Number(sameMove(bestLine[0], a.move)));
     for (const candidate of rootMoves) {
       if (now() >= context.deadline) {
         context.timedOut = true;
@@ -131,7 +147,8 @@ export function searchBestMove(request: AiSearchRequest, now: () => number = () 
       }
       const child = negamax(candidate.pieces, opposite(request.side), depth - 1, 1, -Infinity, Infinity, context);
       if (context.timedOut) break;
-      iteration.push({ move: candidate.move, score: -child.score, line: [candidate.move, ...child.line] });
+      const score = -child.score;
+      iteration.push({ move: candidate.move, score, line: [candidate.move, ...child.line] });
     }
     if (context.timedOut || iteration.length !== rootMoves.length) break;
     iteration.sort((a, b) => b.score - a.score);

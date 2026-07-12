@@ -2,8 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { canHumanMove, createGameState, isCurrentRequest, resolveHumanSide } from './game-state';
 import type { GameSettings } from './types';
 
-const humanVsAi: GameSettings = {
-  mode: 'human-vs-ai',
+const playerBlack: GameSettings = {
   playerSide: 'black',
   aiDifficulty: 'normal',
 };
@@ -11,16 +10,16 @@ const humanVsAi: GameSettings = {
 const idFactory = (scope: 'game' | 'request') => `${scope}-fixed`;
 
 describe('game state model', () => {
-  it('starts a human-vs-human game with red to move', () => {
+  it('starts a human-vs-ai game with the player controlling red', () => {
     const state = createGameState(undefined, idFactory);
     expect(state.turn).toBe('red');
-    expect(state.settings.mode).toBe('human-vs-human');
+    expect(state.humanSide).toBe('red');
     expect(state.positionVersion).toBe(0);
     expect(canHumanMove(state)).toBe(true);
   });
 
   it('marks the opening turn as AI-controlled when the player chooses black', () => {
-    const state = createGameState(humanVsAi, idFactory);
+    const state = createGameState(playerBlack, idFactory);
     expect(state.humanSide).toBe('black');
     expect(state.turn).toBe('red');
     expect(canHumanMove(state)).toBe(false);
@@ -32,7 +31,7 @@ describe('game state model', () => {
   });
 
   it('rejects stale request identities', () => {
-    const state = createGameState(humanVsAi, idFactory);
+    const state = createGameState(playerBlack, idFactory);
     expect(isCurrentRequest(state, state)).toBe(true);
     expect(isCurrentRequest(state, { ...state, positionVersion: 1 })).toBe(false);
     expect(isCurrentRequest(state, { ...state, requestId: 'request-old' })).toBe(false);
