@@ -11,7 +11,10 @@
   --cyan: #62e6db;
   --cyan-dim: rgba(98, 230, 219, .2);
   --signal: #f4b75d;
-  --void: #050b0e;
+  --void: #25211d;
+  --board-wood: #d8a85f;
+  --board-line: #5a321e;
+  --river-red: #7a2e22;
 }
 
 * { box-sizing: border-box; }
@@ -21,11 +24,11 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 18% 20%, rgba(29, 128, 126, .15), transparent 28rem),
-    radial-gradient(circle at 82% 72%, rgba(154, 59, 42, .12), transparent 30rem),
+    radial-gradient(circle at 18% 20%, rgba(128, 88, 45, .16), transparent 28rem),
+    radial-gradient(circle at 82% 72%, rgba(122, 46, 34, .15), transparent 30rem),
     linear-gradient(rgba(98, 230, 219, .025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(98, 230, 219, .025) 1px, transparent 1px),
-    #050b0e;
+    var(--void);
   background-size: auto, auto, 42px 42px, 42px 42px, auto;
   overflow-x: hidden;
 }
@@ -214,14 +217,14 @@ h1 span { color: #e05b48; text-shadow: 0 0 18px rgba(224, 91, 72, .38); }
     radial-gradient(ellipse at 32% 14%, rgba(255,255,255,.12), transparent 24%),
     linear-gradient(rgba(39, 94, 91, .08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(39, 94, 91, .07) 1px, transparent 1px),
-    linear-gradient(145deg, #c9ab70, #b18c55 58%, #8f6a3e);
+    linear-gradient(145deg, #e0b76f, var(--board-wood) 48%, #b7783e);
   background-size: auto, 18px 18px, 18px 18px, auto;
   box-shadow: inset 0 0 42px rgba(29, 18, 8, .45), inset 0 0 0 5px rgba(9, 28, 29, .2);
 }
 
 .board-lines { position: absolute; inset: 5.4%; pointer-events: none; }
 .board-lines svg { width: 100%; height: 100%; overflow: visible; }
-.board-lines line { vector-effect: non-scaling-stroke; stroke: #4b3a22; stroke-width: 1.2; shape-rendering: geometricPrecision; }
+.board-lines line { vector-effect: non-scaling-stroke; stroke: var(--board-line); stroke-width: 1.2; shape-rendering: geometricPrecision; }
 
 .river {
   position: absolute;
@@ -232,11 +235,11 @@ h1 span { color: #e05b48; text-shadow: 0 0 18px rgba(224, 91, 72, .38); }
   display: flex;
   align-items: center;
   justify-content: space-around;
-  color: #2a4a45;
+  color: var(--river-red);
   font: clamp(18px, 3.2vw, 31px)/1 'Ma Shan Zheng', cursive;
   letter-spacing: .35em;
-  background: linear-gradient(90deg, rgba(112, 199, 188, .12), rgba(220, 190, 128, .86) 24%, rgba(220, 190, 128, .86) 76%, rgba(112, 199, 188, .12));
-  text-shadow: 0 0 10px rgba(101, 231, 217, .28);
+  background: linear-gradient(90deg, rgba(122, 46, 34, .08), rgba(229, 190, 118, .9) 24%, rgba(229, 190, 118, .9) 76%, rgba(122, 46, 34, .08));
+  text-shadow: 0 1px 0 rgba(255, 220, 152, .45);
 }
 
 .point {
@@ -589,4 +592,505 @@ footer {
   h1 { font-size: 26px; }
   .eyebrow { letter-spacing: .2em; }
   .black-panel { display: none; }
+}
+
+/* Full-viewport game layout: the board receives all space left by the command deck. */
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  min-height: 100dvh;
+  overscroll-behavior: none;
+}
+
+.app-shell {
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  max-width: 1536px;
+  padding: clamp(8px, 1.25vw, 18px);
+  overflow: hidden;
+}
+
+.game-workspace {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) clamp(270px, 23vw, 350px);
+  gap: clamp(10px, 1.5vw, 24px);
+  align-items: stretch;
+}
+
+.board-stage {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.board-wrap {
+  container-type: inline-size;
+  width: min(100%, calc((100dvh - clamp(36px, 4vw, 60px)) * 8 / 9));
+  padding: clamp(10px, 1.35vw, 20px);
+}
+
+.piece {
+  font-size: clamp(20px, 5.2cqw, 43px);
+}
+
+.river {
+  font-size: clamp(18px, 4cqw, 34px);
+}
+
+.command-deck {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.2vh, 14px);
+  overflow: hidden;
+}
+
+.masthead {
+  flex: 0 0 auto;
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  gap: 12px;
+}
+
+.seal {
+  flex: 0 0 auto;
+  width: clamp(42px, 4vw, 54px);
+  height: clamp(42px, 4vw, 54px);
+  font-size: clamp(27px, 2.6vw, 34px);
+}
+
+.eyebrow {
+  font-size: clamp(8px, .72vw, 10px);
+  letter-spacing: .28em;
+  white-space: nowrap;
+}
+
+h1 {
+  font-size: clamp(24px, 2.2vw, 31px);
+  white-space: nowrap;
+}
+
+.players-row {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid rgba(98, 230, 219, .18);
+  background: rgba(5, 17, 20, .7);
+}
+
+.side-panel {
+  position: static;
+  display: grid;
+  grid-template-columns: 44px 1fr 8px;
+  grid-template-rows: auto auto;
+  column-gap: 9px;
+  align-items: center;
+  text-align: left;
+}
+
+.player-mark {
+  grid-row: 1 / 3;
+  width: 44px;
+  height: 44px;
+  font-size: 26px;
+}
+
+.side-panel p,
+.side-panel strong,
+.side-panel .turn-light {
+  display: block;
+}
+
+.side-panel p {
+  grid-column: 2;
+  margin: 0;
+  font-size: 9px;
+}
+
+.side-panel strong {
+  grid-column: 2;
+  font-size: 13px;
+}
+
+.turn-light {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  margin: 0;
+}
+
+.versus {
+  color: #665640;
+  font: 18px/1 'Ma Shan Zheng', cursive;
+  writing-mode: vertical-rl;
+}
+
+.control-bar {
+  flex: 0 0 auto;
+  width: 100%;
+  margin: 0;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  padding: 10px 12px;
+}
+
+.last-move {
+  display: flex;
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.actions button {
+  min-width: 0;
+  padding: 7px 8px;
+}
+
+.settings-panel {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  align-self: stretch;
+  padding: clamp(11px, 1.2vw, 16px);
+  overflow: hidden;
+}
+
+.panel-heading {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+}
+
+.settings-panel label {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.settings-panel select {
+  min-width: 0;
+  padding: 7px 8px;
+}
+
+.audio-controls {
+  margin: 8px 0;
+  padding: 8px;
+}
+
+.ai-stage-note {
+  margin-top: 10px;
+  padding: 9px;
+}
+
+.command-deck footer {
+  flex: 0 0 auto;
+  margin: 0;
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: .18em;
+}
+
+/* A human win fills the viewport with celebratory motion; a loss remains restrained. */
+.result-backdrop {
+  overflow: hidden;
+}
+
+.result-backdrop.win {
+  z-index: 30;
+  background:
+    radial-gradient(circle at center, rgba(127, 18, 12, .3), transparent 48%),
+    rgba(5, 4, 2, .76);
+  backdrop-filter: blur(5px) saturate(1.2);
+}
+
+.result-backdrop.lose {
+  background: rgba(8, 8, 7, .68);
+}
+
+.victory-effects,
+.fireworks,
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.victory-rays {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(120vmax, 1400px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  opacity: .28;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 194, 64, .28) 0 7deg, transparent 7deg 18deg);
+  mask-image: radial-gradient(circle, #000 0 14%, transparent 58%);
+  animation: victory-rays 16s linear infinite;
+}
+
+.firework {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  animation: firework-pop 2.15s ease-out infinite;
+}
+
+.firework:nth-child(2n) { animation-delay: -.75s; }
+.firework:nth-child(3n) { animation-delay: -1.35s; }
+
+.firework i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(52px, 7vw, 110px);
+  height: 2px;
+  transform-origin: left center;
+  background: linear-gradient(90deg, #fff4bd, #ffbc2e 28%, #ef3d26 62%, transparent 100%);
+  box-shadow: 0 0 8px #ffad24;
+}
+
+.firework:nth-child(even) i {
+  background: linear-gradient(90deg, #efffff, #57e5d8 32%, #4a83ff 65%, transparent 100%);
+  box-shadow: 0 0 8px #4edfd4;
+}
+
+.confetti i {
+  position: absolute;
+  top: -8vh;
+  width: 8px;
+  height: 18px;
+  border-radius: 2px;
+  background: #f6c54f;
+  animation: confetti-fall linear infinite;
+}
+
+.confetti i:nth-child(3n) { background: #e94a38; }
+.confetti i:nth-child(3n + 1) { background: #63e5d7; }
+.confetti i:nth-child(4n) { width: 12px; height: 12px; border-radius: 50%; }
+
+.firecracker {
+  position: absolute;
+  bottom: 6vh;
+  width: clamp(46px, 6vw, 82px);
+  height: clamp(100px, 15vw, 190px);
+  display: grid;
+  place-items: center;
+  border: 2px solid #f1b745;
+  color: #ffd77a;
+  background: repeating-linear-gradient(180deg, #b71912 0 20px, #e04125 20px 24px);
+  box-shadow: 0 0 28px rgba(235, 57, 31, .65);
+  font: clamp(24px, 3vw, 42px)/1 'Ma Shan Zheng', cursive;
+  animation: firecracker-cheer .48s ease-in-out infinite alternate;
+}
+
+.firecracker-left { left: 6vw; transform: rotate(-8deg); }
+.firecracker-right { right: 6vw; transform: rotate(8deg); animation-delay: -.24s; }
+
+.result-dialog.win {
+  width: min(500px, 88vw);
+  padding: clamp(36px, 6vh, 64px) clamp(30px, 5vw, 58px) clamp(30px, 5vh, 48px);
+  border: 2px solid #f0bd51;
+  color: #fff0bd;
+  background:
+    radial-gradient(circle at 50% 0, rgba(255, 210, 91, .35), transparent 48%),
+    linear-gradient(155deg, #4c0b08, #1d0905 60%, #510f08);
+  box-shadow: 0 0 0 7px rgba(131, 28, 15, .7), 0 0 70px rgba(255, 147, 33, .62), inset 0 0 46px rgba(255, 191, 58, .2);
+  animation: victory-card .7s cubic-bezier(.2, 1.5, .45, 1) both, victory-glow 1.2s .7s ease-in-out infinite alternate;
+}
+
+.result-dialog.win .result-kicker {
+  color: #ffca58;
+  font-size: clamp(11px, 1.3vw, 15px);
+}
+
+.result-dialog.win h2 {
+  margin: 16px 0 12px;
+  color: #fff1a8;
+  font-size: clamp(72px, 12vw, 140px);
+  text-shadow: 0 3px 0 #a82515, 0 0 16px #ffdf6d, 0 0 42px #e5381d;
+  animation: victory-title .82s .25s cubic-bezier(.2, 1.65, .5, 1) both;
+}
+
+.result-dialog.win p {
+  color: #eecf91;
+  font-size: clamp(13px, 1.6vw, 18px);
+}
+
+.result-dialog.win button {
+  min-width: 150px;
+  padding: 11px 28px;
+  border-color: #efc668;
+  color: #381108;
+  background: linear-gradient(#ffe29b, #d99b32);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .35), 0 0 20px rgba(255, 193, 70, .3);
+  font-weight: 700;
+}
+
+.result-dialog.lose {
+  width: min(380px, 88vw);
+  border-color: #65594a;
+  background: #141617;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .65);
+}
+
+.result-dialog.lose h2 {
+  font-size: clamp(42px, 8vw, 58px);
+  color: #cdb99b;
+}
+
+@keyframes victory-rays {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes firework-pop {
+  0%, 14% { opacity: 0; transform: scale(.05); }
+  24% { opacity: 1; }
+  72%, 100% { opacity: 0; transform: scale(1); }
+}
+
+@keyframes confetti-fall {
+  to { transform: translate3d(var(--confetti-drift), 115vh, 0) rotate(840deg); }
+}
+
+@keyframes firecracker-cheer {
+  to { margin-bottom: 7px; filter: brightness(1.25); }
+}
+
+@keyframes victory-card {
+  from { opacity: 0; transform: scale(.62) translateY(35px); }
+}
+
+@keyframes victory-glow {
+  to { box-shadow: 0 0 0 8px rgba(149, 35, 17, .76), 0 0 100px rgba(255, 147, 33, .84), inset 0 0 52px rgba(255, 191, 58, .27); }
+}
+
+@keyframes victory-title {
+  from { opacity: 0; transform: scale(.35) rotate(-5deg); }
+}
+
+@media (max-height: 700px) and (min-width: 681px) {
+  .command-deck { gap: 6px; }
+  .masthead { padding-block: 7px; }
+  .seal { width: 40px; height: 40px; font-size: 26px; }
+  .players-row { padding-block: 5px; }
+  .player-mark { width: 36px; height: 36px; font-size: 22px; }
+  .side-panel { grid-template-columns: 36px 1fr 8px; }
+  .control-bar { padding-block: 7px; }
+  .panel-heading { display: none; }
+  .audio-controls { padding-block: 6px; }
+  .ai-stage-note { margin-top: 6px; padding-block: 6px; }
+  .command-deck footer { display: none; }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  .app-shell { padding: max(5px, env(safe-area-inset-top)) 7px max(5px, env(safe-area-inset-bottom)); }
+  .game-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 6px;
+  }
+  .board-stage { align-items: start; }
+  .board-wrap {
+    width: min(100%, calc((100dvh - 206px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * 8 / 9));
+    padding: clamp(7px, 2.4vw, 11px);
+  }
+  .command-deck {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    gap: 5px 7px;
+  }
+  .masthead { padding: 5px 7px; gap: 7px; }
+  .seal { width: 36px; height: 36px; font-size: 23px; }
+  .eyebrow { display: none; }
+  h1 { font-size: clamp(20px, 6vw, 26px); letter-spacing: .08em; }
+  .players-row { padding: 4px 6px; gap: 4px; }
+  .side-panel {
+    grid-template-columns: 30px 1fr 5px;
+    column-gap: 5px;
+  }
+  .player-mark { width: 30px; height: 30px; font-size: 19px; }
+  .side-panel p { display: none; }
+  .side-panel strong { font-size: 10px; }
+  .versus { display: none; }
+  .control-bar {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr auto;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 7px;
+  }
+  .status-kicker, .last-move span { font-size: 8px; }
+  .status strong, .last-move strong { font-size: 11px; }
+  .actions { grid-column: auto; grid-template-columns: auto auto; }
+  .actions button { padding: 5px 6px; font-size: 10px; }
+  .settings-panel {
+    grid-column: 1 / -1;
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px 7px;
+    padding: 7px;
+  }
+  .panel-heading { display: none; }
+  .settings-panel label {
+    min-width: 0;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 4px;
+    margin: 0;
+  }
+  .settings-panel label > span { font-size: 8px; letter-spacing: .06em; }
+  .settings-panel select { padding: 5px 4px; font-size: 10px; }
+  .audio-controls {
+    min-width: 0;
+    grid-template-columns: 20px 1fr auto;
+    gap: 5px;
+    margin: 0;
+    padding: 5px;
+  }
+  .audio-controls div span { display: none; }
+  .audio-wave { height: 14px; }
+  .ai-stage-note { margin: 0; padding: 5px 6px; align-items: center; }
+  .ai-stage-note p { min-width: 0; }
+  .ai-stage-note p { font-size: 8px; line-height: 1.25; }
+  .ai-stage-note strong { font-size: 10px; }
+  .ai-dot { margin-top: 0; }
+  .command-deck footer { display: none; }
+  .result-dialog.win { padding: 34px 24px 28px; }
+  .firecracker { display: none; }
+}
+
+@media (max-width: 380px) and (orientation: portrait), (max-height: 590px) and (orientation: portrait) {
+  .board-wrap { width: min(100%, calc((100dvh - 184px) * 8 / 9)); }
+  .players-row { display: none; }
+  .command-deck { grid-template-columns: 1fr; }
+  .masthead { position: absolute; z-index: 6; top: 9px; left: 9px; width: auto; background: rgba(7, 24, 26, .82); }
+  .control-bar, .settings-panel { grid-column: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .victory-rays, .firework, .confetti i, .firecracker,
+  .result-dialog.win, .result-dialog.win h2 { animation: none; }
+  .fireworks, .confetti, .firecracker { display: none; }
+  .victory-rays { opacity: .18; }
 }
