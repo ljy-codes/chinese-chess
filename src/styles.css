@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700;900&display=swap');
+
+:root {
+  font-family: 'Noto Serif SC', 'Songti SC', serif;
+  color: #e9dbc2;
+  background: #17120d;
+  font-synthesis: none;
+  --gold: #c49a53;
+  --red: #a92a22;
+  --ink: #261d16;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 15%, rgba(126, 87, 45, .18), transparent 31rem),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.015) 0 1px, transparent 1px 7px),
+    #17120d;
+}
+
+button { font: inherit; }
+
+.app-shell {
+  width: min(1120px, 100%);
+  min-height: 100vh;
+  margin: auto;
+  padding: 24px 32px 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.masthead {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: min(760px, 100%);
+  margin: 0 auto 18px;
+}
+
+.seal {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #b34334;
+  color: #cc5746;
+  font: 34px/1 'Ma Shan Zheng', cursive;
+  transform: rotate(-3deg);
+  box-shadow: inset 0 0 0 3px #17120d, inset 0 0 0 4px #873229;
+}
+
+.eyebrow {
+  margin: 0 0 2px;
+  color: #967b59;
+  font-size: 11px;
+  letter-spacing: .42em;
+}
+
+h1 {
+  margin: 0;
+  font: 900 32px/1 'Noto Serif SC', serif;
+  letter-spacing: .18em;
+}
+
+h1 span { color: #b74032; }
+
+.header-note {
+  margin: 0 0 0 auto;
+  color: #826f57;
+  font: 14px/1.75 'Ma Shan Zheng', cursive;
+  letter-spacing: .2em;
+  text-align: right;
+}
+
+.game-layout {
+  display: grid;
+  grid-template-columns: 95px minmax(300px, 610px) 95px;
+  gap: 28px;
+  align-items: center;
+  justify-content: center;
+}
+
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #8d7659;
+}
+
+.player-mark {
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  border: 2px solid;
+  border-radius: 50%;
+  background: #d5ba85;
+  box-shadow: inset 0 0 0 4px #7d6644, 0 5px 10px #080604;
+  font: 34px/1 'Ma Shan Zheng', cursive;
+}
+
+.black-mark { color: #29241d; }
+.red-mark { color: #a6211d; border-color: #95221b; }
+.side-panel p { margin: 13px 0 2px; font-size: 11px; letter-spacing: .28em; }
+.side-panel strong { color: #d2b992; font-size: 16px; letter-spacing: .15em; }
+
+.turn-light {
+  width: 5px;
+  height: 5px;
+  margin-top: 12px;
+  border-radius: 50%;
+  background: #443a2e;
+}
+
+.turn-light.active { background: #dfaf51; box-shadow: 0 0 9px #e7a936; }
+
+.board-wrap {
+  padding: 16px;
+  border: 1px solid #7f6239;
+  background: #33271b;
+  box-shadow: 0 20px 55px #080604, inset 0 0 24px #17100a;
+}
+
+.board {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 8 / 9;
+  border: 2px solid #3b2818;
+  background:
+    radial-gradient(ellipse at 32% 14%, rgba(255,255,255,.14), transparent 24%),
+    repeating-linear-gradient(93deg, rgba(91,55,25,.08) 0 1px, transparent 1px 8px),
+    #c7a267;
+  box-shadow: inset 0 0 28px rgba(72, 42, 16, .34);
+}
+
+.board-lines { position: absolute; inset: 5.4%; pointer-events: none; }
+.board-lines i { position: absolute; display: block; background: #573b21; }
+.horizontal { left: 0; width: 100%; height: 1px; }
+.vertical { top: 0; width: 1px; height: 100%; }
+.vertical:not(.v-0):not(.v-8) { clip-path: polygon(0 0, 100% 0, 100% 44.45%, 0 44.45%, 0 55.55%, 100% 55.55%, 100% 100%, 0 100%); }
+
+.palace { width: 1px; height: 31.45%; transform-origin: top; }
+.black-palace-a { left: 37.5%; top: 0; transform: rotate(-42deg); }
+.black-palace-b { left: 62.5%; top: 0; transform: rotate(42deg); }
+.red-palace-a { left: 37.5%; top: 77.78%; transform: rotate(-42deg); }
+.red-palace-b { left: 62.5%; top: 77.78%; transform: rotate(42deg); }
+
+.river {
+  position: absolute;
+  top: 44.5%;
+  left: 1px;
+  right: 1px;
+  height: 11%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  color: #584027;
+  font: clamp(18px, 3.2vw, 31px)/1 'Ma Shan Zheng', cursive;
+  letter-spacing: .35em;
+  background: rgba(198, 160, 99, .9);
+}
+
+.point {
+  position: absolute;
+  z-index: 2;
+  width: 11%;
+  aspect-ratio: 1;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.piece {
+  position: absolute;
+  inset: 2%;
+  display: grid;
+  place-items: center;
+  border: clamp(1px, .35vw, 2px) solid #4b3520;
+  border-radius: 50%;
+  color: #282019;
+  background:
+    radial-gradient(circle at 38% 30%, #ead198, #bf985c 68%, #8d6638 100%);
+  box-shadow: inset 0 0 0 3px #c8a468, inset 0 0 0 4px #644725, 0 3px 5px rgba(35,20,9,.62);
+  font: clamp(18px, 4.1vw, 31px)/1 'Ma Shan Zheng', cursive;
+  transition: transform .14s ease, filter .14s ease;
+}
+
+.piece.red { color: #a31f19; border-color: #85241d; box-shadow: inset 0 0 0 3px #c8a468, inset 0 0 0 4px #85241d, 0 3px 5px rgba(35,20,9,.62); }
+.point:hover .piece, .point.selected .piece { transform: translateY(-2px); filter: brightness(1.12); }
+.point.selected .piece { box-shadow: inset 0 0 0 3px #d8bc7e, inset 0 0 0 5px #cf9d38, 0 0 15px #e8b347; }
+.point.last:not(.selected) .piece { filter: brightness(1.08); }
+
+.point.legal::after {
+  content: '';
+  position: absolute;
+  inset: 39%;
+  border-radius: 50%;
+  background: #7d351f;
+  box-shadow: 0 0 0 3px rgba(188, 131, 66, .5);
+}
+
+.point.legal:has(.piece)::after { inset: 4%; border: 3px solid #8e3024; background: transparent; box-shadow: none; }
+
+.control-bar {
+  width: min(760px, 100%);
+  margin: 18px auto 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 20px;
+  border-top: 1px solid #3c3024;
+  border-bottom: 1px solid #3c3024;
+  padding: 12px 2px;
+}
+
+.status, .last-move { display: flex; flex-direction: column; gap: 3px; }
+.status-kicker, .last-move span { color: #776650; font-size: 10px; letter-spacing: .2em; }
+.status strong, .last-move strong { font-size: 14px; color: #cbb38c; }
+.status.check strong, .status.checkmate strong { color: #dc5c4b; }
+.last-move { text-align: right; }
+
+.actions { display: flex; gap: 8px; }
+.actions button {
+  min-width: 70px;
+  padding: 8px 14px;
+  border: 1px solid #62503a;
+  color: #bfaa88;
+  background: transparent;
+  cursor: pointer;
+}
+.actions button:hover:not(:disabled) { color: #eee0c8; border-color: #a88655; }
+.actions button:disabled { opacity: .35; cursor: default; }
+.actions .restart { border-color: #88362d; color: #d26b5b; }
+
+footer {
+  margin: 14px auto 0;
+  color: #5f5140;
+  font-size: 10px;
+  letter-spacing: .35em;
+}
+
+@media (max-width: 760px) {
+  .app-shell { padding: 15px 12px; }
+  .masthead { margin-bottom: 12px; }
+  .header-note { display: none; }
+  .game-layout { grid-template-columns: minmax(290px, 580px); gap: 10px; }
+  .side-panel { position: absolute; z-index: 5; top: 25px; }
+  .black-panel { right: 15px; }
+  .red-panel { display: none; }
+  .black-panel .player-mark { width: 42px; height: 42px; font-size: 24px; }
+  .side-panel p, .side-panel strong, .side-panel .turn-light { display: none; }
+  .board-wrap { padding: 10px; }
+  .control-bar { grid-template-columns: 1fr auto; gap: 8px; margin-top: 12px; }
+  .last-move { display: none; }
+  .actions button { min-width: 60px; padding: 7px 9px; }
+  footer { letter-spacing: .15em; text-align: center; }
+}
+
+@media (max-width: 400px) {
+  .seal { width: 44px; height: 44px; font-size: 28px; }
+  h1 { font-size: 26px; }
+  .eyebrow { letter-spacing: .2em; }
+  .black-panel { display: none; }
+}
