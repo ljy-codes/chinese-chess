@@ -57,9 +57,7 @@ export function ChessBoard({ boardIndex, disabled, lastMove, legalMoveKeys, rece
                   className={`move-trace ${marker.side} ${marker.endpoint}`}
                   aria-hidden="true"
                   key={`${marker.side}-${marker.endpoint}`}
-                >
-                  {marker.endpoint === 'from' ? '起' : '落'}
-                </span>
+                />
               ))}
             </button>
           );

@@ -208,19 +208,35 @@ h1 span { color: #b74032; }
   inset: 2%;
   display: grid;
   place-items: center;
-  border: clamp(1px, .35vw, 2px) solid #4b3520;
+  border: clamp(1px, .35vw, 2px) solid #a37b38;
   border-radius: 50%;
-  color: #282019;
+  color: #ead9a4;
   background:
-    radial-gradient(circle at 38% 30%, #ead198, #bf985c 68%, #8d6638 100%);
-  box-shadow: inset 0 0 0 3px #c8a468, inset 0 0 0 4px #644725, 0 3px 5px rgba(35,20,9,.62);
+    radial-gradient(circle at 34% 25%, #40505a 0, #202d35 34%, #111b21 72%, #080d10 100%);
+  text-shadow: 0 1px 0 #4a3517, 0 0 6px rgba(230, 204, 137, .2);
+  box-shadow:
+    inset 0 0 0 2px #ceb06a,
+    inset 0 0 0 5px #5b4525,
+    inset 0 0 15px rgba(188, 157, 83, .2),
+    0 4px 7px rgba(20, 12, 7, .72);
   font: clamp(18px, 4.1vw, 31px)/1 'Ma Shan Zheng', cursive;
   transition: transform .14s ease, filter .14s ease;
 }
 
-.piece.red { color: #a31f19; border-color: #85241d; box-shadow: inset 0 0 0 3px #c8a468, inset 0 0 0 4px #85241d, 0 3px 5px rgba(35,20,9,.62); }
+.piece.red {
+  color: #f0cf85;
+  border-color: #b48742;
+  background:
+    radial-gradient(circle at 34% 25%, #8f3b35 0, #64231f 36%, #3b1211 74%, #210908 100%);
+  text-shadow: 0 1px 0 #5b160f, 0 0 7px rgba(244, 207, 126, .24);
+  box-shadow:
+    inset 0 0 0 2px #d8bb72,
+    inset 0 0 0 5px #7b3c24,
+    inset 0 0 15px rgba(230, 177, 82, .2),
+    0 4px 7px rgba(20, 8, 6, .74);
+}
 .point:hover .piece, .point.selected .piece { transform: translateY(-2px); filter: brightness(1.12); }
-.point.selected .piece { box-shadow: inset 0 0 0 3px #d8bc7e, inset 0 0 0 5px #cf9d38, 0 0 15px #e8b347; }
+.point.selected .piece { box-shadow: inset 0 0 0 2px #f1d890, inset 0 0 0 5px #9c7432, 0 0 16px rgba(236, 199, 112, .9); }
 .point.last:not(.selected) .piece { filter: brightness(1.08); }
 
 .point.legal::after {
@@ -253,31 +269,12 @@ h1 span { color: #b74032; }
   border: 3px solid;
   border-radius: 50%;
   pointer-events: none;
-  font-size: 0;
 }
 
 .move-trace.from { border-style: dashed; opacity: .82; }
 .move-trace.to { border-style: solid; box-shadow: 0 0 10px currentColor; }
-.move-trace.red { --trace-color: #c83028; color: var(--trace-color); }
-.move-trace.black { --trace-color: #243b51; color: var(--trace-color); }
-
-.move-trace::after {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 19px;
-  height: 19px;
-  border: 1px solid var(--trace-color);
-  border-radius: 50%;
-  color: #f4e5c8;
-  background: var(--trace-color);
-  font: 11px/17px 'Noto Serif SC', serif;
-  text-align: center;
-  box-shadow: 0 2px 5px rgba(31, 18, 9, .45);
-}
-
-.move-trace.from::after { content: '起'; }
-.move-trace.to::after { content: '落'; }
+.move-trace.red { color: #cf5849; }
+.move-trace.black { color: #9eb6c2; }
 
 @keyframes legal-breathe {
   to { transform: scale(1.28); opacity: .68; }
