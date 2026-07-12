@@ -8,7 +8,7 @@ class GameAudio {
   private effectsGain?: GainNode;
   private ambientSources: AudioScheduledSourceNode[] = [];
   private melodyTimer?: number;
-  private melodyIndex = 0;
+  private guqinIndex = 0;
   private enabled = false;
   private muted = false;
   private endTimer?: number;
@@ -67,61 +67,71 @@ class GameAudio {
     this.effectsGain.gain.value = this.muted ? 0 : 0.34;
     this.musicGain.connect(this.context.destination);
     this.effectsGain.connect(this.context.destination);
-    this.startMountainStream();
+    this.startStillWaterGuqin();
   }
 
-  private startMountainStream() {
+  private startStillWaterGuqin() {
     const context = this.context!;
-    const buffer = context.createBuffer(1, context.sampleRate * 3, context.sampleRate);
+    const buffer = context.createBuffer(1, context.sampleRate * 4, context.sampleRate);
     const samples = buffer.getChannelData(0);
     let filtered = 0;
     for (let index = 0; index < samples.length; index += 1) {
-      filtered = filtered * 0.82 + (Math.random() * 2 - 1) * 0.18;
-      samples[index] = filtered * (0.72 + Math.sin(index / 431) * 0.12);
+      filtered = filtered * 0.96 + (Math.random() * 2 - 1) * 0.04;
+      samples[index] = filtered * (0.56 + Math.sin(index / 1937) * 0.08);
     }
 
-    const stream = context.createBufferSource();
-    const streamFilter = context.createBiquadFilter();
-    const streamGain = context.createGain();
-    stream.buffer = buffer;
-    stream.loop = true;
-    streamFilter.type = 'bandpass';
-    streamFilter.frequency.value = 1450;
-    streamFilter.Q.value = 0.55;
-    streamGain.gain.value = 0.28;
-    stream.connect(streamFilter).connect(streamGain).connect(this.musicGain!);
-    stream.start();
-    this.ambientSources.push(stream);
+    const water = context.createBufferSource();
+    const waterFilter = context.createBiquadFilter();
+    const waterGain = context.createGain();
+    water.buffer = buffer;
+    water.loop = true;
+    waterFilter.type = 'lowpass';
+    waterFilter.frequency.value = 620;
+    waterFilter.Q.value = 0.4;
+    waterGain.gain.value = 0.08;
+    water.connect(waterFilter).connect(waterGain).connect(this.musicGain!);
+    water.start();
+    this.ambientSources.push(water);
 
-    [196, 293.66, 440].forEach((frequency, index) => {
-      const tone = context.createOscillator();
-      const gain = context.createGain();
-      tone.type = index === 0 ? 'sine' : 'triangle';
-      tone.frequency.value = frequency;
-      gain.gain.value = index === 0 ? 0.035 : 0.012;
-      tone.connect(gain).connect(this.musicGain!);
-      tone.start();
-      this.ambientSources.push(tone);
-    });
-    this.scheduleMelody();
+    const resonance = context.createOscillator();
+    const resonanceGain = context.createGain();
+    resonance.type = 'sine';
+    resonance.frequency.value = 98;
+    resonanceGain.gain.value = 0.016;
+    resonance.connect(resonanceGain).connect(this.musicGain!);
+    resonance.start();
+    this.ambientSources.push(resonance);
+    this.scheduleGuqin();
   }
 
-  private scheduleMelody() {
+  private scheduleGuqin() {
     if (!this.context || !this.musicGain) return;
-    const pentatonic = [392, 440, 523.25, 587.33, 659.25, 587.33, 523.25, 440];
-    const oscillator = this.context.createOscillator();
-    const gain = this.context.createGain();
-    const now = this.context.currentTime;
-    oscillator.type = 'sine';
-    oscillator.frequency.value = pentatonic[this.melodyIndex % pentatonic.length];
-    gain.gain.setValueAtTime(0.001, now);
-    gain.gain.exponentialRampToValueAtTime(0.055, now + 0.35);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 2.6);
-    oscillator.connect(gain).connect(this.musicGain);
-    oscillator.start(now);
-    oscillator.stop(now + 2.7);
-    this.melodyIndex += 1;
-    this.melodyTimer = window.setTimeout(() => this.scheduleMelody(), 3200 + Math.random() * 1800);
+    const phrase = [196, 261.63, 220, 293.66, 261.63, 329.63, 220, 196];
+    this.playGuqinNote(phrase[this.guqinIndex % phrase.length]);
+    this.guqinIndex += 1;
+    this.melodyTimer = window.setTimeout(() => this.scheduleGuqin(), 4800 + Math.random() * 3200);
+  }
+
+  private playGuqinNote(frequency: number) {
+    const context = this.context!;
+    const now = context.currentTime;
+    [1, 2, 3].forEach((harmonic, index) => {
+      const string = context.createOscillator();
+      const gain = context.createGain();
+      const filter = context.createBiquadFilter();
+      string.type = index === 0 ? 'triangle' : 'sine';
+      string.frequency.setValueAtTime(frequency * harmonic * 1.012, now);
+      string.frequency.exponentialRampToValueAtTime(frequency * harmonic, now + 0.18);
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(2600 - index * 520, now);
+      filter.frequency.exponentialRampToValueAtTime(720, now + 2.8);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.exponentialRampToValueAtTime([0.16, 0.048, 0.018][index], now + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 3.6 - index * 0.55);
+      string.connect(filter).connect(gain).connect(this.musicGain!);
+      string.start(now);
+      string.stop(now + 3.7);
+    });
   }
 
   private playMove() {
